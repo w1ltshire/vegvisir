@@ -9,10 +9,15 @@ use static_cell::StaticCell;
 use crate::buffered_uart;
 use crate::drivers::DriverResult;
 
+/// NMEA Line type for convenience.
+///
+/// NMEA messages have a maximum length of 82 characters, including the $ or ! starting character and the ending <LF>.
+type NmeaLine = heapless::String<82>;
+
 /// GPS reading task
 #[embassy_executor::task]
 async fn run(mut uart: BufferedUart<'static>) {
-	let mut line = heapless::String::<82>::new();
+	let mut line = NmeaLine::new();
 
 	loop {
 		if read_line(&mut uart, &mut line).await.is_err() {
@@ -48,7 +53,7 @@ pub fn spawn(p: Peripherals, spawner: Spawner) {
 /// Read a single line from the UART
 async fn read_line<U: BufRead + Unpin>(
 	uart: &mut U,
-	line_buf: &mut heapless::String<82>,
+	line_buf: &mut NmeaLine,
 ) -> DriverResult<()> where Error: From<<U as ErrorType>::Error> {
 	line_buf.clear();
 
