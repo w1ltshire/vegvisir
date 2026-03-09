@@ -30,7 +30,7 @@ macro_rules! buffered_uart {
 
 async fn read_line<U: BufRead + Unpin>(
     uart: &mut U,
-    line_buf: &mut heapless::String<512>,
+    line_buf: &mut heapless::String<82>,
 ) -> Result<(), ()> {
     line_buf.clear();
 
@@ -64,7 +64,7 @@ async fn main(_spawner: Spawner) {
     let mut tx_buf = [0u8; 32];
     let mut uart = buffered_uart!(p, p.USART1, config, PA10, PA9, &mut rx_buf, &mut tx_buf);
 
-    let mut line = heapless::String::<512>::new();
+    let mut line = heapless::String::<82>::new();
 
     loop {
         if read_line(&mut uart, &mut line).await.is_err() {
@@ -74,10 +74,6 @@ async fn main(_spawner: Spawner) {
 
         let sentence = line.trim_end_matches(&['\r', '\n'][..]);
         let mut nmea = Nmea::default();
-        if nmea.parse(sentence).is_ok() {
-            info!("{:?}", nmea);
-        } else {
-            info!("raw: {}", sentence);
-        }
+        let _ = nmea.parse(sentence); // eh ignore for now, use it appropriately when i do proper abstractions woo
     }
 }
