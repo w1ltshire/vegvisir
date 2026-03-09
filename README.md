@@ -14,5 +14,8 @@ As I'm aiming to make basically an autopilot for a drone, I named it appropriate
 From Wikipedia:
 > The **vegvísir** is an Icelandic magical stave intended to help the bearer find their way through rough weather.
 
+## Documentation
+For extended information about crates, refer to their relevant READMEs.
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

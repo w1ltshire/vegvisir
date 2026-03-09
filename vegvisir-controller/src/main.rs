@@ -1,10 +1,10 @@
+#![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
 #![no_std]
 #![no_main]
 
 mod drivers;
 mod phy;
 
-use defmt::error;
 #[allow(unused_imports)]
 use {defmt_rtt as _, panic_probe as _};
 use embassy_executor::Spawner;
