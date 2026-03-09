@@ -1,0 +1,6 @@
+[workspace]
+members = ["vegvisir-mcu"]
+resolver = "3"
+
+[profile.release]
+debug = 2
