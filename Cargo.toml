@@ -1,5 +1,5 @@
 [workspace]
-members = ["vegvisir-mcu"]
+members = ["vegvisir-controller"]
 resolver = "3"
 
 [profile.release]
