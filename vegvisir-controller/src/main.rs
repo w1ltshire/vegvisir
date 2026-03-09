@@ -6,7 +6,7 @@ mod phy;
 
 use defmt::error;
 #[allow(unused_imports)]
-use defmt_rtt as _;
+use {defmt_rtt as _, panic_probe as _};
 use embassy_executor::Spawner;
 use embassy_stm32::{bind_interrupts, peripherals, usart};
 
@@ -18,10 +18,4 @@ bind_interrupts!(struct Irqs {
 async fn main(spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
     drivers::gps::spawn(p, spawner);
-}
-
-#[panic_handler]
-fn panic(info: &core::panic::PanicInfo) -> ! {
-    error!("{:?}", info);
-    loop {}
 }
