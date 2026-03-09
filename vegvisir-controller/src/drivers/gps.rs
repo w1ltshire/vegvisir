@@ -2,11 +2,12 @@ use crate::Irqs;
 use defmt::{error, info};
 use embassy_executor::Spawner;
 use embassy_stm32::Peripherals;
-use embassy_stm32::usart::{BufferedUart, Config};
-use embedded_io_async::BufRead;
+use embassy_stm32::usart::{BufferedUart, Config, Error};
+use embedded_io_async::{BufRead, ErrorType};
 use nmea::Nmea;
 use static_cell::StaticCell;
 use crate::buffered_uart;
+use crate::drivers::DriverResult;
 
 /// GPS reading task
 #[embassy_executor::task]
@@ -31,17 +32,15 @@ pub fn spawn(p: Peripherals, spawner: Spawner) {
 	let mut config = Config::default();
 	config.baudrate = 9600;
 
-	let uart: BufferedUart = {
-		buffered_uart!(
-            p,
-            p.USART1,
-            config,
-            PA10,
-            PA9,
-            1024,
-            1
-        )
-	};
+	let uart: BufferedUart = buffered_uart!(
+		p,
+		p.USART1,
+		config,
+		PA10,
+		PA9,
+		1024,
+		1
+	);
 
 	spawner.spawn(run(uart)).unwrap();
 }
@@ -50,21 +49,24 @@ pub fn spawn(p: Peripherals, spawner: Spawner) {
 async fn read_line<U: BufRead + Unpin>(
 	uart: &mut U,
 	line_buf: &mut heapless::String<82>,
-) -> Result<(), ()> {
+) -> DriverResult<()> where Error: From<<U as ErrorType>::Error> {
 	line_buf.clear();
 
 	loop {
-		let buf = uart.fill_buf().await.map_err(|_| ())?;
+		let buf = uart
+			.fill_buf()
+			.await
+			.map_err(|e| {
+				<<U as ErrorType>::Error as Into<Error>>::into(e)
+			})?;
 		if let Some(pos) = buf.iter().position(|&b| b == b'\n') {
 			line_buf
-				.push_str(core::str::from_utf8(&buf[..=pos]).map_err(|_| ())?)
-				.map_err(|_| ())?;
+				.push_str(core::str::from_utf8(&buf[..=pos])?)?;
 			uart.consume(pos + 1);
 			break;
 		} else {
 			line_buf
-				.push_str(core::str::from_utf8(buf).map_err(|_| ())?)
-				.map_err(|_| ())?;
+				.push_str(core::str::from_utf8(buf)?)?;
 			let n = buf.len();
 			uart.consume(n);
 		}
