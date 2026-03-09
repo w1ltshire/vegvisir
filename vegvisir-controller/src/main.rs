@@ -13,6 +13,21 @@ bind_interrupts!(struct Irqs {
     USART1 => usart::BufferedInterruptHandler<peripherals::USART1>;
 });
 
+macro_rules! buffered_uart {
+    ($p:expr, $uart:expr, $config:expr, $rx_pin:ident, $tx_pin:ident, $rx_buf:expr, $tx_buf:expr) => {{
+        BufferedUart::new(
+            $uart,
+            $p.$rx_pin,
+            $p.$tx_pin,
+            $tx_buf,
+            $rx_buf,
+            Irqs,
+            $config,
+        )
+        .unwrap()
+    }}
+}
+
 async fn read_line<U: BufRead + Unpin>(
     uart: &mut U,
     line_buf: &mut heapless::String<512>,
@@ -45,25 +60,16 @@ async fn main(_spawner: Spawner) {
     let mut config = Config::default();
     config.baudrate = 9600;
 
-    let mut tx_buf = [0u8; 32];
     let mut rx_buf = [0u8; 1024];
-    let mut uart = BufferedUart::new(
-        p.USART1,
-        p.PA10, // rx on the board, tx on the gps module (white on bn-180)
-        p.PA9,  // tx on the board, rx on the gps module (green on bn-180)
-        &mut tx_buf,
-        &mut rx_buf,
-        Irqs,
-        config,
-    )
-        .unwrap();
+    let mut tx_buf = [0u8; 32];
+    let mut uart = buffered_uart!(p, p.USART1, config, PA10, PA9, &mut rx_buf, &mut tx_buf);
 
     let mut line = heapless::String::<512>::new();
 
     loop {
         if read_line(&mut uart, &mut line).await.is_err() {
             error!("UART read error");
-            continue;
+            break;
         }
 
         let sentence = line.trim_end_matches(&['\r', '\n'][..]);
