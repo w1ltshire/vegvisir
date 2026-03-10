@@ -9,5 +9,5 @@ pub enum DriverError {
     #[error(transparent)]
     Serial(#[from] embassy_stm32::usart::Error),
     #[error(transparent)]
-    Spawn(#[from] embassy_executor::SpawnError)
+    Spawn(#[from] embassy_executor::SpawnError),
 }

@@ -5,11 +5,11 @@
 mod drivers;
 mod phy;
 
-#[allow(unused_imports)]
-use {defmt_rtt as _, panic_probe as _};
+use crate::drivers::gps::GPSDriver;
 use embassy_executor::Spawner;
 use embassy_stm32::{bind_interrupts, peripherals, usart};
-use crate::drivers::gps::GPSDriver;
+#[allow(unused_imports)]
+use {defmt_rtt as _, panic_probe as _};
 
 bind_interrupts!(struct Irqs {
     USART1 => usart::BufferedInterruptHandler<peripherals::USART1>;
