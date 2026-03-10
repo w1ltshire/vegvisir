@@ -1,8 +1,9 @@
 use crate::Irqs;
 use defmt::{error, info};
 use embassy_executor::Spawner;
-use embassy_stm32::Peripherals;
-use embassy_stm32::usart::{BufferedUart, Config, Error};
+use embassy_stm32::interrupt::typelevel::Binding;
+use embassy_stm32::Peri;
+use embassy_stm32::usart::{BufferedInterruptHandler, BufferedUart, Config, Error, Instance, RxPin, TxPin};
 use embedded_io_async::{BufRead, ErrorType};
 use nmea::Nmea;
 use static_cell::StaticCell;
@@ -21,16 +22,20 @@ pub struct GPSDriver {
 
 impl GPSDriver {
 	/// Create a new instance of [`GPSDriver`]
-	pub fn new(peripherals: Peripherals, baudrate: u32) -> Self {
+	pub fn new<T: Instance>(
+		usart: Peri<'static, T>,
+		rx: Peri<'static, impl RxPin<T>>,
+		tx: Peri<'static, impl TxPin<T>>,
+		baudrate: u32
+	) -> Self where Irqs: Binding<<T as Instance>::Interrupt, BufferedInterruptHandler<T>> {
 		let mut config = Config::default();
 		config.baudrate = baudrate;
 
 		let uart: BufferedUart = buffered_uart!(
-			peripherals,
-			peripherals.USART1,
+			usart,
 			config,
-			PA10,
-			PA9,
+			rx,
+			tx,
 			1024,
 			1
 		);

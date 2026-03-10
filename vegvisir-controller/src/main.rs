@@ -18,6 +18,6 @@ bind_interrupts!(struct Irqs {
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
-    let gps_driver = GPSDriver::new(p, 9600);
+    let gps_driver = GPSDriver::new(p.USART1, p.PA10, p.PA9, 9600);
     let _ = gps_driver.spawn(spawner);
 }

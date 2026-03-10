@@ -17,7 +17,7 @@
 /// ```
 #[macro_export]
 macro_rules! buffered_uart {
-    ($p:expr, $uart:expr, $config:expr, $rx_pin:ident, $tx_pin:ident, $rx_size:expr, $tx_size:expr) => {{
+    ($uart:expr, $config:expr, $rx_pin:expr, $tx_pin:expr, $rx_size:expr, $tx_size:expr) => {{
 	    static RX_BUF: StaticCell<[u8; $rx_size]> = StaticCell::new();
         static TX_BUF: StaticCell<[u8; $tx_size]> = StaticCell::new();
 
@@ -26,8 +26,8 @@ macro_rules! buffered_uart {
 
         BufferedUart::new(
             $uart,
-            $p.$rx_pin,
-            $p.$tx_pin,
+            $rx_pin,
+            $tx_pin,
             tx_buf,
             rx_buf,
             Irqs,
