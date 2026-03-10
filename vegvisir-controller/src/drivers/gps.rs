@@ -14,9 +14,41 @@ use crate::drivers::DriverResult;
 /// NMEA messages have a maximum length of 82 characters, including the $ or ! starting character and the ending <LF>.
 type NmeaLine = heapless::String<82>;
 
-/// GPS reading task
+/// Structure representing GPS driver
+pub struct GPSDriver {
+	uart: BufferedUart<'static>
+}
+
+impl GPSDriver {
+	/// Create a new instance of [`GPSDriver`]
+	pub fn new(peripherals: Peripherals, baudrate: u32) -> Self {
+		let mut config = Config::default();
+		config.baudrate = baudrate;
+
+		let uart: BufferedUart = buffered_uart!(
+			peripherals,
+			peripherals.USART1,
+			config,
+			PA10,
+			PA9,
+			1024,
+			1
+		);
+
+		Self {
+			uart
+		}
+	}
+
+	/// Spawn the GPS driver task, consuming `self`
+	pub fn spawn(self, spawner: Spawner) -> DriverResult<()> {
+		spawner.spawn(gps(self.uart))?;
+		Ok(())
+	}
+}
+
 #[embassy_executor::task]
-async fn run(mut uart: BufferedUart<'static>) {
+async fn gps(mut uart: BufferedUart<'static>) {
 	let mut line = NmeaLine::new();
 
 	loop {
@@ -28,26 +60,8 @@ async fn run(mut uart: BufferedUart<'static>) {
 		let sentence = line.trim_end_matches(&['\r', '\n'][..]);
 		let mut nmea = Nmea::default();
 		let _ = nmea.parse(sentence);
-		info!("{:?}", nmea);
+		info!("lat:{}, lon:{}, fix:{:?}", nmea.latitude, nmea.longitude, nmea.fix_type);
 	}
-}
-
-/// Spawn GPS task
-pub fn spawn(p: Peripherals, spawner: Spawner) {
-	let mut config = Config::default();
-	config.baudrate = 9600;
-
-	let uart: BufferedUart = buffered_uart!(
-		p,
-		p.USART1,
-		config,
-		PA10,
-		PA9,
-		1024,
-		1
-	);
-
-	spawner.spawn(run(uart)).unwrap();
 }
 
 /// Read a single line from the UART
