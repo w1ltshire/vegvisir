@@ -10,7 +10,7 @@ I've been into unmanned vehicles a little bit of time. This project is my attemp
 software/hardware complex of an unmanned surface vessel.
 
 ## Naming
-As I'm aiming to make basically an autopilot for a drone, I named it appropriately!<br/>
+As I'm aiming to make basically an autopilot for a drone, it was named it appropriatel.!<br/>
 From Wikipedia:
 > The **vegvísir** is an Icelandic magical stave intended to help the bearer find their way through rough weather.
 
