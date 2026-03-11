@@ -18,6 +18,9 @@
 #[macro_export]
 macro_rules! buffered_uart {
     ($uart:expr, $config:expr, $rx_pin:expr, $tx_pin:expr, $rx_size:expr, $tx_size:expr) => {{
+        use static_cell::StaticCell;
+        use embassy_stm32::usart::BufferedUart;
+
         static RX_BUF: StaticCell<[u8; $rx_size]> = StaticCell::new();
         static TX_BUF: StaticCell<[u8; $tx_size]> = StaticCell::new();
 
