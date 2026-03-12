@@ -1,16 +1,14 @@
 use crate::Irqs;
 use crate::buffered_uart;
-use crate::drivers::DriverResult;
-use defmt::{error, info};
+use crate::drivers::{Driver, DriverResult};
+use defmt::error;
 use embassy_executor::Spawner;
-use embassy_stm32::Peri;
-use embassy_stm32::interrupt::typelevel::Binding;
+use embassy_stm32::Peripherals;
 use embassy_stm32::usart::{
-    BufferedInterruptHandler, BufferedUart, Config, Error, Instance, RxPin, TxPin,
+    BufferedUart, Config, Error,
 };
 use embedded_io_async::{BufRead, ErrorType};
 use nmea::Nmea;
-use static_cell::StaticCell;
 
 /// NMEA Line type for convenience.
 ///
@@ -22,29 +20,18 @@ pub struct GPSDriver {
     uart: BufferedUart<'static>,
 }
 
-impl GPSDriver {
-    /// Create a new instance of [`GPSDriver`]
-    pub fn new<T: Instance>(
-        usart: Peri<'static, T>,
-        rx: Peri<'static, impl RxPin<T>>,
-        tx: Peri<'static, impl TxPin<T>>,
-        baudrate: u32,
-    ) -> Self
-    where
-        Irqs: Binding<<T as Instance>::Interrupt, BufferedInterruptHandler<T>>,
-    {
+impl Driver for GPSDriver {
+    fn init(peripherals: Peripherals) -> GPSDriver {
         let mut config = Config::default();
-        config.baudrate = baudrate;
+        config.baudrate = 9600;
 
-        let uart: BufferedUart = buffered_uart!(usart, config, rx, tx, 1024, 1);
+        let uart: BufferedUart = buffered_uart!(peripherals.USART1, config, peripherals.PA10, peripherals.PA9, 1024, 1);
 
         Self { uart }
     }
 
-    /// Spawn the GPS driver task, consuming `self`
-    pub fn spawn(self, spawner: Spawner) -> DriverResult<()> {
-        spawner.spawn(gps(self.uart))?;
-        Ok(())
+    fn spawn(self, spawner: &Spawner) -> DriverResult<()> {
+        Ok(spawner.spawn(gps(self.uart))?)
     }
 }
 
@@ -61,10 +48,10 @@ async fn gps(mut uart: BufferedUart<'static>) {
         let sentence = line.trim_end_matches(&['\r', '\n'][..]);
         let mut nmea = Nmea::default();
         let _ = nmea.parse(sentence);
-        info!(
+        /* info!(
             "lat:{}, lon:{}, fix:{:?}",
             nmea.latitude, nmea.longitude, nmea.fix_type
-        );
+        ); */
     }
 }
 
@@ -79,7 +66,7 @@ where
         let buf = uart
             .fill_buf()
             .await
-            .map_err(|e| <<U as ErrorType>::Error as Into<Error>>::into(e))?;
+            .map_err(<<U as ErrorType>::Error as Into<Error>>::into)?;
         if let Some(pos) = buf.iter().position(|&b| b == b'\n') {
             line_buf.push_str(core::str::from_utf8(&buf[..=pos])?)?;
             uart.consume(pos + 1);
