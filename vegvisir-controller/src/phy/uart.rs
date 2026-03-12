@@ -1,13 +1,5 @@
 /// Create a [`embassy_stm32::usart::BufferedUart`] instance
 ///
-/// # Arguments
-/// * `uart` - UART instance
-/// * `config` - UART config
-/// * `rx_pin` - UART receive pin
-/// * `tx_pin` - UART transmit pin
-/// * `rx_size` - receive buffer
-/// * `tx_size` - transmity buffer
-///
 /// # Example
 /// ```rust,no_run
 /// let mut config = Config::default();
