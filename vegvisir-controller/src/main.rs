@@ -18,5 +18,6 @@ bind_interrupts!(struct Irqs {
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
-    GPSDriver::new(p.USART1, p.PA10, p.PA9, 9600).spawn(&spawner);
+    // TODO: improve error handling (send over lora? do some freaky stuff like blink an led or buzz?)
+    GPSDriver::new(p.USART1, p.PA10, p.PA9, 9600).spawn(&spawner).unwrap();
 }
