@@ -6,7 +6,7 @@
 ---
 
 ## Overview
-This crate contains protocol realization for the `vegvisir` USV project
+This crate contains protocol implementation for the `vegvisir` USV project
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
