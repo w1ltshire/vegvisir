@@ -25,10 +25,9 @@ impl defmt::Format for DriverError {
     fn format(&self, fmt: Formatter) {
         match self {
             DriverError::Capacity(_) => write!(fmt, "insufficient capacity"),
-            DriverError::Utf8(e) => write!(fmt, "utf8 parsing error"),
+            DriverError::Utf8(_) => write!(fmt, "utf8 parsing error"),
             DriverError::Serial(e) => write!(fmt, "{}", e.as_display()),
             DriverError::Spawn(e) => write!(fmt, "{}", e.as_display()),
-            _ => {}
         }
     }
 }

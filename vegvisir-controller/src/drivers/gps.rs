@@ -1,5 +1,5 @@
 use crate::Irqs;
-use defmt::{error, info};
+use defmt::error;
 use embassy_executor::Spawner;
 use embassy_stm32::interrupt::typelevel::Binding;
 use embassy_stm32::Peri;
@@ -52,7 +52,7 @@ impl GPSDriver {
 }
 
 /// The GPS driver task itself.
-/// 
+///
 /// Read line into a buffer with length of 82 and parse it.
 #[embassy_executor::task]
 async fn gps(mut uart: BufferedUart<'static>) {
