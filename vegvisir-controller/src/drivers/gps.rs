@@ -59,8 +59,8 @@ async fn gps(mut uart: BufferedUart<'static>) {
     let mut line = NmeaLine::new();
 
     loop {
-        if read_line(&mut uart, &mut line).await.is_err() {
-            error!("UART read error");
+        if let Err(e) = read_line(&mut uart, &mut line).await {
+            error!("UART read error: {}", e);
             break;
         }
 
