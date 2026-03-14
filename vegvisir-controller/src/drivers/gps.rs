@@ -11,7 +11,7 @@ use crate::drivers::DriverResult;
 
 /// NMEA Line type for convenience.
 ///
-/// NMEA messages have a maximum length of 82 characters, including the $ or ! starting character and the ending <LF>.
+/// NMEA messages have a maximum length of 82 characters, including the $ or ! starting character and the ending \<LF>.
 type NmeaLine = heapless::String<82>;
 
 /// Structure representing GPS driver
