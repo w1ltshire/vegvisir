@@ -3,6 +3,7 @@ use defmt::Format;
 use heapless::Vec;
 use serde::{Deserialize, Serialize};
 use crate::error::ProtocolResult;
+use crate::message::Message;
 
 /// Structure representing a single packet
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Format, Default)]
@@ -10,6 +11,8 @@ use crate::error::ProtocolResult;
 pub struct Packet {
 	/// LoRa address for P2P communications, can be ignored if using another transport
 	pub lora_address: u16,
+	/// Payload of the packet
+	pub payload: Message
 }
 
 impl Packet {
@@ -44,18 +47,20 @@ mod tests {
 
 	use crate::packet::Packet;
 	use std::println;
+	use crate::message::Message;
 
 	const EXAMPLE_PACKET: Packet = Packet {
 		lora_address: 0xF9F9,
+		payload: Message::Heartbeat
 	};
 
-	const BYTES: [u8; 7] = [0xF9, 0xF3, 0x3, 0xD6, 0xB, 0xFD, 0x43];
+	const BYTES: [u8; 8] = [0xF9, 0xF3, 0x3, 0x0, 0x19, 0xA8, 0x4C, 0xA7];
 
 	#[test]
 	fn serialize() {
 		let ser = EXAMPLE_PACKET.serialize().unwrap();
 		println!("{ser:X?}");
-		assert_eq!(*ser, [0xF9, 0xF3, 0x3, 0xD6, 0xB, 0xFD, 0x43])
+		assert_eq!(*ser, [0xF9, 0xF3, 0x3, 0x0, 0x19, 0xA8, 0x4C, 0xA7])
 	}
 
 	#[test]
