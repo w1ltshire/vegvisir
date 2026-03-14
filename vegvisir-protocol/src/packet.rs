@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use crate::error::ProtocolResult;
 
 /// Structure representing a single packet
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Format)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Format, Default)]
+#[non_exhaustive]
 pub struct Packet {
 	/// LoRa address for P2P communications, can be ignored if using another transport
 	pub lora_address: u16,
@@ -48,9 +49,19 @@ mod tests {
 		lora_address: 0xF9F9,
 	};
 
+	const BYTES: [u8; 7] = [0xF9, 0xF3, 0x3, 0xD6, 0xB, 0xFD, 0x43];
+
 	#[test]
 	fn serialize() {
-		let ser = EXAMPLE_PACKET.serialize();
+		let ser = EXAMPLE_PACKET.serialize().unwrap();
 		println!("{ser:X?}");
+		assert_eq!(*ser, [0xF9, 0xF3, 0x3, 0xD6, 0xB, 0xFD, 0x43])
+	}
+
+	#[test]
+	fn from_bytes() {
+		let packet = Packet::from_slice(&BYTES).unwrap();
+		println!("{packet:X?}");
+		assert_eq!(packet, EXAMPLE_PACKET);
 	}
 }
