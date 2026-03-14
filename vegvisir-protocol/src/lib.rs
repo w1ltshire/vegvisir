@@ -4,3 +4,4 @@
 
 /// Representing protocol packets
 pub mod packet;
+mod error;
