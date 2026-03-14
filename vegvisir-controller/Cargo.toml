@@ -28,8 +28,6 @@ embedded-io-async = { version = "0.7.0" }
 panic-probe = { version = "1.0.0", features = ["print-defmt"] }
 heapless = { version = "0.9", default-features = false }
 
-chacha20-poly1305 = { version = "0.1.2", default-features = false }
-
 [package.metadata.embassy]
 build = [
   { target = "thumbv7em-none-eabi" }
