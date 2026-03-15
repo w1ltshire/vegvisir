@@ -1494,6 +1494,9 @@ dependencies = [
 [[package]]
 name = "vegvisir-transport"
 version = "0.1.0"
+dependencies = [
+ "tokio",
+]
 
 [[package]]
 name = "version_check"

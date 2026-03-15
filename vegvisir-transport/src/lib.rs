@@ -1,6 +1,11 @@
 #![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
 #![warn(missing_docs)]
 #![no_std]
+extern crate alloc;
+
+/// Module implementing async TCP transport for targets with `std` support
+#[cfg(feature = "tcp")]
+pub mod tcp;
 
 use core::error::Error;
 
