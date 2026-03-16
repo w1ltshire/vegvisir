@@ -1,5 +1,5 @@
 use crate::Irqs;
-use defmt::error;
+use defmt::{error, warn};
 use embassy_executor::Spawner;
 use embassy_stm32::interrupt::typelevel::Binding;
 use embassy_stm32::Peri;
@@ -8,6 +8,7 @@ use embedded_io_async::{BufRead, ErrorType};
 use nmea::Nmea;
 use crate::buffered_uart;
 use crate::drivers::DriverResult;
+use crate::drivers::error::DriverError;
 
 /// NMEA Line type for convenience.
 ///
@@ -53,21 +54,26 @@ impl GPSDriver {
 
 /// The GPS driver task itself.
 ///
-/// Read line into a buffer with length of 82 and parse it.
+/// Read a line into a buffer with a length of 82 and parse it.
 #[embassy_executor::task]
 async fn gps(mut uart: BufferedUart<'static>) {
     let mut line = NmeaLine::new();
 
     loop {
         if let Err(e) = read_line(&mut uart, &mut line).await {
-            error!("UART read error: {}", e);
-            break;
+            match e {
+                DriverError::Utf8(_) => warn!("utf-8 parsing error, ignoring"),
+                _ => {
+                    error!("UART read error: {}", e);
+                    break;
+                }
+            }
         }
 
         let sentence = line.trim_end_matches(&['\r', '\n'][..]);
         let mut nmea = Nmea::default();
         let _ = nmea.parse(sentence);
-        //info!("lat:{}, lon:{}, fix:{:?}", nmea.latitude, nmea.longitude, nmea.fix_type);
+        // defmt::info!("lat:{}, lon:{}, fix:{:?}", nmea.latitude, nmea.longitude, nmea.fix_type);
     }
 }
 
