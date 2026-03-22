@@ -7,6 +7,13 @@ pub struct TCPClient {
 	pub(crate) stream: TcpStream,
 }
 
+impl TCPClient {
+	/// Create a new [`TCPClient`] instance
+	pub fn new(stream: TcpStream) -> Self {
+		Self { stream }
+	}
+}
+
 impl Transport for TCPClient {
 	type Error = tokio::io::Error;
 
@@ -16,7 +23,7 @@ impl Transport for TCPClient {
 	}
 
 	async fn recv(&mut self, buf: &mut [u8]) -> Result<(), Self::Error> {
-		self.stream.read_exact(buf).await?;
+		self.stream.read(buf).await?;
 		Ok(())
 	}
 }
