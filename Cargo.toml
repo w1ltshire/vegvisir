@@ -1,5 +1,5 @@
 [workspace]
-members = ["vegvisir-controller", "vegvisir-crypto", "vegvisir-protocol", "vegvisir-transport"]
+members = ["vegvisir-controller", "vegvisir-gcs-server", "vegvisir-protocol"]
 resolver = "3"
 
 [profile.release]

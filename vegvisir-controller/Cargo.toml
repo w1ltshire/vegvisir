@@ -21,7 +21,7 @@ defmt = "1.0.1"
 defmt-rtt = "1.0.0"
 
 static-alloc = "0.2.6"
-
+embassy-time = { version = "0.5.1", features = ["defmt", "defmt-timestamp-uptime", "tick-hz-32_768"] }
 cortex-m-rt = "0.7.0"
 cortex-m = { version = "0.7.6", features = ["inline-asm", "critical-section-single-core"] }
 embedded-io-async = { version = "0.7.0" }
