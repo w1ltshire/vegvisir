@@ -33,12 +33,13 @@ async fn main(spawner: Spawner) {
     let mut config = embassy_stm32::Config::default();
     config.rcc.hsi = true;
     config.rcc.sys = embassy_stm32::rcc::Sysclk::HSI;
-    let p = embassy_stm32::init(Default::default());
+    let p = embassy_stm32::init(config);
 
     let nss = Output::new(p.PB2, Level::High, Speed::Low);
     let reset = Output::new(p.PB1, Level::High, Speed::Low);
     let irq = ExtiInput::new(p.PB0, p.EXTI0, Pull::Up, Irqs);
 
+    info!("Trans Rights are Human Rights!");
     let mut spi_cfg = spi::Config::default();
     spi_cfg.frequency = khz(200);
     let spi = spi::Spi::new(
